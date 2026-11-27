@@ -115,7 +115,7 @@ def _paste_tiles(img, tiles, labels=("index", "thumb")):
 
 
 def _status(t):
-    return "object floating" if t < T_RELEASE else "gravity ON - held by friction"
+    return "gravity OFF" if t < T_RELEASE else "gravity ON"
 
 
 def clip_pinch(kind, duration=6.5):
