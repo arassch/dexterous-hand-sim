@@ -29,7 +29,7 @@ def _pad_xml(young, poisson, damping, mass, resolution, pin_below):
     P, T = ellipsoid_tets(PAD_RADII, resolution)
     pin = np.where(P[:, 2] / PAD_RADII[2] <= pin_below)[0]     # pin the back (inner) half to the bone
     return f"""<mujoco><worldbody><body name="pad">
-  <flexcomp name="flex" type="direct" dim="3" radius="0.0005" rgba=".95 .78 .72 1" mass="{mass}"
+  <flexcomp name="flex" type="direct" dim="3" radius="0.0005" rgba=".78 .78 .78 1" mass="{mass}"
     point="{' '.join(f'{v:.6f}' for v in P.ravel())}" element="{' '.join(map(str, T.ravel()))}">
     <edge equality="false"/>
     <elasticity young="{young}" poisson="{poisson}" damping="{damping}"/>
