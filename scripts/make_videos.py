@@ -168,6 +168,9 @@ def clip_rigid_vs_soft(kind="sphere", duration=6.5):
     return frames
 
 
+BAR_AZIMUTH = 160      # slightly off the pinch axis so both fingers are visible
+
+
 def _bar_tilt(sim):
     a = sim.data.body("object").xmat.reshape(3, 3)[:, 1]          # bar long axis
     return float(np.degrees(np.arcsin(np.clip(-a[2], -1, 1))))
@@ -187,7 +190,7 @@ def clip_bar_rigid_vs_soft(duration=8.0):
         soft.advance(t)
         panels = []
         for sim, title in ((rigid, "Rigid fingertips"), (soft, "Soft FEM fingertips")):
-            img = sim.render(180, 0.30, -20, lookat=look, contacts=sim is rigid)
+            img = sim.render(BAR_AZIMUTH, 0.30, -20, lookat=look, contacts=sim is rigid)
             dropped = sim.data.body("object").xpos[2] < 0.15
             state = "DROPPED" if dropped else f"bar tilt {_bar_tilt(sim):5.1f} deg"
             img = _label(img, [title, state], color=(255, 120, 120) if dropped else (255, 255, 255))
