@@ -7,7 +7,7 @@ PINCH_POSE = {"if_mcp_act": 1.4, "if_pip_act": 0.2, "if_dip_act": 0.12,
 PINCH_POINT = (-0.033, -0.008, 0.241)   # midpoint between index and thumb pads at PINCH_POSE
 
 
-def pinch_target(model, squeeze=0.1):
+def pinch_target(model, squeeze=0.2):
     extra = {"if_mcp_act": squeeze, "th_cmc_act": squeeze}
     tgt = np.array([PINCH_POSE.get(model.actuator(i).name, 0.0) + extra.get(model.actuator(i).name, 0.0)
                     for i in range(model.nu)])
