@@ -13,7 +13,8 @@ Built on [MuJoCo](https://github.com/google-deepmind/mujoco): Python for scene s
 - [x] Fingertip pressure maps: per-node pressure on each pad's outer face (5x5 taxels), heat dots on the pads and live tactile images in the viewer
 - [x] Pinch objects: sphere, cube, tilted cylinder, 2 mm plate edge-on (`--object`), plus `scripts/tactile_gallery.py` to render all four with their tactile images
 - [ ] Custom C++ FEM fingertip plugin (`plugin/`)
-- [ ] Video + write-up
+- [x] Demo videos: `scripts/make_videos.py` (power grasp, pinch of each object with tactile images, rigid vs soft)
+- [ ] Write-up
 
 ## Quick start
 
@@ -31,6 +32,7 @@ mjpython scripts/pinch_demo.py --rigid
 python scripts/pinch_demo.py --headless --save-tactile tactile.png
 mjpython scripts/pinch_demo.py --object cube      # sphere | cube | cylinder | plate
 python scripts/tactile_gallery.py                 # all four objects -> tactile_gallery.png
+python scripts/make_videos.py                     # MP4 clips -> videos/ (a few minutes)
 ```
 
 Pinch, headless — soft pads give contact *patches*, rigid tips give single points:
