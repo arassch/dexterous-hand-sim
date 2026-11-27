@@ -7,6 +7,7 @@ Clips:
   power_grasp      rigid-tip power grasp of a ball, contact points and forces
   pinch_<object>   soft-pad pinch of sphere/cube/cylinder/plate with pad pressure and tactile images
   rigid_vs_soft    sphere pinch, rigid tips (left) vs soft FEM pads (right)
+  bar_rigid_vs_soft  bar held off-centre: rigid tips drop it, soft pads hold it
 
 Rendering is offline, so the soft-pad clips play at real speed even though the
 simulation runs slower than real time. Needs imageio[ffmpeg] (in requirements.txt).
@@ -23,8 +24,8 @@ from PIL import Image, ImageDraw, ImageFont
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from hand_sim.contacts import object_contacts  # noqa: E402
 from hand_sim.grasp import ctrl_at, grasp_target  # noqa: E402
-from hand_sim.objects import OBJECTS  # noqa: E402
-from hand_sim.pinch import T_RELEASE, PinchController, gravity_on  # noqa: E402
+from hand_sim.objects import OBJECTS, SQUEEZE  # noqa: E402
+from hand_sim.pinch import PINCH_POINT, T_RELEASE, PinchController, gravity_on  # noqa: E402
 from hand_sim.pressure import PadPressure  # noqa: E402
 from hand_sim.scene import build_scene  # noqa: E402
 from hand_sim.tactile_viz import add_pad_heat, taxel_image  # noqa: E402
@@ -52,7 +53,7 @@ class Sim:
         self.data = mujoco.MjData(m)
         self.pinch, self.soft = pinch, soft
         self.obj = m.body("object").id
-        self.ctrl = PinchController(m) if pinch else None
+        self.ctrl = PinchController(m, squeeze=SQUEEZE[pinch]) if pinch else None
         self.target = None if pinch else grasp_target(m)
         self.pressure = PadPressure(m) if soft else None
         self.renderer = mujoco.Renderer(m, height, width)
@@ -167,7 +168,41 @@ def clip_rigid_vs_soft(kind="sphere", duration=6.5):
     return frames
 
 
+def _bar_tilt(sim):
+    a = sim.data.body("object").xmat.reshape(3, 3)[:, 1]          # bar long axis
+    return float(np.degrees(np.arcsin(np.clip(-a[2], -1, 1))))
+
+
+def clip_bar_rigid_vs_soft(duration=8.0):
+    """Bar pinched 3 cm off-centre: gravity twists it about the pinch axis. Two rigid point
+    contacts can't resist that torque and the bar swings and drops; the soft pads' contact
+    patches resist it through distributed friction."""
+    half = W // 2
+    rigid, soft = Sim("bar", soft=False, width=half), Sim("bar", soft=True, width=half)
+    look = np.array(PINCH_POINT) + [0.0, 0.02, -0.01]
+    frames = []
+    for i in range(int(duration * FPS)):
+        t = i / FPS
+        rigid.advance(t)
+        soft.advance(t)
+        panels = []
+        for sim, title in ((rigid, "Rigid fingertips"), (soft, "Soft FEM fingertips")):
+            img = sim.render(180, 0.30, -20, lookat=look, contacts=sim is rigid)
+            dropped = sim.data.body("object").xpos[2] < 0.15
+            state = "DROPPED" if dropped else f"bar tilt {_bar_tilt(sim):5.1f} deg"
+            img = _label(img, [title, state], color=(255, 120, 120) if dropped else (255, 255, 255))
+            if sim is soft:
+                img = _paste_tiles(img, soft.tiles(150))
+            panels.append(img)
+        img = np.concatenate(panels, axis=1)
+        img[:, half - 2:half + 2] = 255
+        img = _label(img, ["bar held 3 cm off-centre", f"t = {t:4.1f} s", _status(t)], (24, H - 125), size=26)
+        frames.append(img)
+    return frames
+
+
 CLIPS = {"power_grasp": clip_power_grasp, "rigid_vs_soft": clip_rigid_vs_soft,
+         "bar_rigid_vs_soft": clip_bar_rigid_vs_soft,
          **{f"pinch_{k}": (lambda k=k: clip_pinch(k)) for k in OBJECTS}}
 
 

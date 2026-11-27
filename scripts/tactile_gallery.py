@@ -13,7 +13,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from hand_sim.objects import OBJECTS  # noqa: E402
+from hand_sim.objects import OBJECTS, SQUEEZE  # noqa: E402
 from hand_sim.pinch import PinchController, gravity_on  # noqa: E402
 from hand_sim.pressure import PadPressure  # noqa: E402
 from hand_sim.scene import build_scene  # noqa: E402
@@ -26,7 +26,7 @@ W, H, TILE = 400, 300, 140
 def simulate(kind, t_end=5.0):
     model = build_scene(pinch=kind, soft_pads=True)
     data = mujoco.MjData(model)
-    ctrl, obj = PinchController(model), model.body("object").id
+    ctrl, obj = PinchController(model, squeeze=SQUEEZE[kind]), model.body("object").id
     while data.time < t_end:
         data.ctrl[:] = ctrl.ctrl(data.time)
         model.body_gravcomp[obj] = 0.0 if gravity_on(data.time) else 1.0

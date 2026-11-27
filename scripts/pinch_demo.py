@@ -9,7 +9,8 @@ outer-face nodes and live 5x5 tactile images for the index (left) and thumb (rig
 
 Interactive (macOS needs mjpython):
     mjpython scripts/pinch_demo.py
-    mjpython scripts/pinch_demo.py --object cube   # or cylinder, plate
+    mjpython scripts/pinch_demo.py --object cube   # or cylinder, plate, bar
+    mjpython scripts/pinch_demo.py --object bar --rigid   # rigid tips drop the off-centre bar
     mjpython scripts/pinch_demo.py --rigid      # same pinch with the original rigid tips, for comparison
 Headless:
     python scripts/pinch_demo.py --headless
@@ -31,7 +32,7 @@ from hand_sim.tactile_viz import add_pad_heat, taxel_image  # noqa: E402
 PMAX = 6000.0            # colour-scale max [Pa]
 TACTILE_PADS = ("if_flex", "th_flex")
 TACTILE_PX = 160
-from hand_sim.objects import OBJECTS  # noqa: E402
+from hand_sim.objects import OBJECTS, SQUEEZE  # noqa: E402
 from hand_sim.scene import build_scene  # noqa: E402
 
 
@@ -110,12 +111,13 @@ if __name__ == "__main__":
     ap.add_argument("--rigid", action="store_true", help="use the original rigid fingertips")
     ap.add_argument("--object", default="sphere", choices=OBJECTS)
     ap.add_argument("--duration", type=float, default=6.0)
-    ap.add_argument("--squeeze", type=float, default=0.008, help="pad travel past first contact [m]")
+    ap.add_argument("--squeeze", type=float, help="pad travel past first contact [m] (default per object)")
     ap.add_argument("--save-tactile", metavar="PNG", help="headless: save final tactile images")
     args = ap.parse_args()
     model = build_scene(pinch=args.object, soft_pads=not args.rigid)
     data = mujoco.MjData(model)
-    controller, obj_id = PinchController(model, squeeze=args.squeeze), model.body("object").id
+    squeeze = SQUEEZE[args.object] if args.squeeze is None else args.squeeze
+    controller, obj_id = PinchController(model, squeeze=squeeze), model.body("object").id
     pressure = None if args.rigid else PadPressure(model)
     if args.headless:
         run_headless(model, data, args.duration, controller, obj_id, pressure, args.save_tactile)
