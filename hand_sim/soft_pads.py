@@ -38,8 +38,8 @@ def _pad_xml(young, poisson, damping, mass, resolution, pin_below):
   </flexcomp></body></worldbody></mujoco>"""
 
 
-def add_soft_pads(spec: mujoco.MjSpec, fingers=("if", "mf", "rf", "th"), young=1e5, poisson=0.4,
-                  damping=5e-4, mass=0.005, resolution=5, pin_below=0.0, shell_alpha=1.0):
+def add_soft_pads(spec: mujoco.MjSpec, fingers=("if", "mf", "rf", "th"), young=2e4, poisson=0.4,
+                  damping=5e-4, mass=0.01, resolution=5, pin_below=0.0, shell_alpha=1.0):
     """Attach FEM pads to the LEAP distal links. Returns the pad flex names in order."""
     # Flex elasticity needs the discrete (or explicit Euler) integrator in MuJoCo 4.
     spec.option.integrator = mujoco.mjtIntegrator.mjINT_DISCRETE
