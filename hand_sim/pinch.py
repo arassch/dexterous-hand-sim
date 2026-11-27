@@ -19,7 +19,6 @@ PINCH_POSE = {"if_mcp": 1.44, "if_rot": 0.03, "if_pip": 0.33, "if_dip": -0.16,
 FINGER_JOINTS = {"if": ["if_mcp", "if_rot", "if_pip", "if_dip"],
                  "th": ["th_cmc", "th_axl", "th_mcp", "th_ipl"]}
 PINCH_POINT = (-0.043, -0.007, 0.243)   # midpoint between index and thumb pads at PINCH_POSE
-PINCH_RADIUS = 0.019                     # sphere radius that just fits between the pads
 
 T_PREGRASP, T_APPROACH, T_RELEASE = 1.5, 1.5, 3.5   # seconds
 

@@ -7,7 +7,7 @@ from pathlib import Path
 
 import mujoco
 
-from .pinch import PINCH_POINT, PINCH_RADIUS
+from .objects import add_object
 from .soft_pads import OBJECT_CONTYPE, add_soft_pads
 
 REPO = Path(__file__).resolve().parents[1]
@@ -17,9 +17,10 @@ FINGERTIPS = ("if_ds", "mf_ds", "rf_ds", "th_ds")
 
 
 def build_scene(ball_radius: float = 0.045, ball_pos=(0.05, 0.0, 0.2), soft_pads: bool = False,
-                pinch: bool = False) -> mujoco.MjModel:
-    """Power grasp of a ball on the palm by default; `pinch=True` gives a small sphere held
-    between thumb and index. `soft_pads=True` replaces the rigid fingertips with FEM pads."""
+                pinch: str | None = None) -> mujoco.MjModel:
+    """Power grasp of a ball on the palm by default; `pinch="sphere"|"cube"|"cylinder"|"plate"`
+    puts that object between thumb and index instead. `soft_pads=True` replaces the rigid
+    fingertips with FEM pads. The object body is always named "object"."""
     if not LEAP_XML.exists():
         raise FileNotFoundError(f"{LEAP_XML} not found - run scripts/fetch_models.sh first")
     spec = mujoco.MjSpec.from_file(str(LEAP_XML))
@@ -32,16 +33,14 @@ def build_scene(ball_radius: float = 0.045, ball_pos=(0.05, 0.0, 0.2), soft_pads
     if soft_pads:
         add_soft_pads(spec)
 
-    if pinch:   # small sphere floating between thumb and index; gravity is switched on at release
-        ball_radius, ball_pos, mass = PINCH_RADIUS, PINCH_POINT, 0.02
-    else:       # dropped onto the upturned palm, then the hand closes on it
-        mass = 0.05
-    ball = spec.worldbody.add_body(name="ball", pos=list(ball_pos))
-    ball.add_freejoint()
-    ball.gravcomp = 1.0 if pinch else 0.0
-    ball.add_geom(name="ball", type=mujoco.mjtGeom.mjGEOM_SPHERE, size=[ball_radius, 0, 0],
-                  mass=mass, friction=[1.2, 0.01, 0.001], condim=4, rgba=[0.9, 0.45, 0.2, 1],
-                  contype=OBJECT_CONTYPE, conaffinity=OBJECT_CONTYPE)
+    if pinch:
+        add_object(spec, pinch, OBJECT_CONTYPE)
+    else:       # ball dropped onto the upturned palm, then the hand closes on it
+        ball = spec.worldbody.add_body(name="object", pos=list(ball_pos))
+        ball.add_freejoint()
+        ball.add_geom(name="object", type=mujoco.mjtGeom.mjGEOM_SPHERE, size=[ball_radius, 0, 0],
+                      mass=0.05, friction=[1.2, 0.01, 0.001], condim=4, rgba=[0.9, 0.45, 0.2, 1],
+                      contype=OBJECT_CONTYPE, conaffinity=OBJECT_CONTYPE)
 
     # Contact visualisation scale (force arrows in N -> metres).
     spec.visual.map.force = 0.0002 if soft_pads else 0.0005

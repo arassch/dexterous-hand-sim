@@ -24,8 +24,8 @@ def run_headless(model, data, duration):
     while data.time < duration:
         data.ctrl[:] = ctrl_at(data.time, target)
         mujoco.mj_step(model, data)
-    contacts = object_contacts(model, data, "ball")
-    print(f"t={data.time:.2f}s  ball at {np.round(data.body('ball').xpos, 3)}  contacts={len(contacts)}")
+    contacts = object_contacts(model, data, "object")
+    print(f"t={data.time:.2f}s  ball at {np.round(data.body('object').xpos, 3)}  contacts={len(contacts)}")
     for body, fn in sorted(per_body_normal_force(contacts).items()):
         print(f"  {body:8s} {fn:6.2f} N")
 

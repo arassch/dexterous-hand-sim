@@ -7,3 +7,5 @@ out/
 *.mp4
 .DS_Store
 MUJOCO_LOG.TXT
+tactile_gallery.png
+tactile.png
