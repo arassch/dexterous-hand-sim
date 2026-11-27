@@ -1,7 +1,7 @@
 """Soft FEM fingertip pads built with MuJoCo flex.
 
-Each pad is a flattened volumetric tetrahedral ellipsoid on the palmar (+z) face
-of a distal phalanx, like the pulp of a real fingertip. Its back half is pinned
+Each pad is a flattened volumetric tetrahedral ellipsoid on the palmar face
+(-x in the distal-link frame, the side the finger curls towards) of a distal phalanx, like the pulp of a real fingertip. Its back half is pinned
 to the link; the front half is free elastic tissue (FEM elasticity in MuJoCo's flex). The pad replaces the
 fingertip's rigid collision geom and only collides with objects (contype bit 2),
 not with the hand itself.
@@ -11,15 +11,16 @@ import numpy as np
 
 from .padmesh import ellipsoid_tets
 
-# Pad half-extents in the distal-link frame [m]: lateral (x), along the finger (y), thickness (z).
-PAD_RADII = np.array([0.0105, 0.014, 0.005])
-# Pad centre in each distal-link frame [m]. The palmar face of LEAP's tip is at tip_centre.z + 0.0125;
-# centring the pad 10 mm above the tip centre makes it stand ~2.5 mm proud of the shell.
+# Pad half-extents in the distal-link frame [m]: thickness (x, palmar normal), along the finger (y),
+# lateral (z).
+PAD_RADII = np.array([0.005, 0.014, 0.0105])
+# Pad centre in each distal-link frame [m]. The palmar face of LEAP's tip is at x = -0.0127;
+# centring the pad at x = -0.0102 makes it stand ~2.5 mm proud of the shell.
 PAD_CENTER = {
-    "if": [-0.0013, -0.0306, 0.0245],
-    "mf": [-0.0013, -0.0306, 0.0245],
-    "rf": [-0.0013, -0.0306, 0.0245],
-    "th": [-0.0013, -0.0466, -0.0045],
+    "if": [-0.0102, -0.033, 0.0145],
+    "mf": [-0.0102, -0.033, 0.0145],
+    "rf": [-0.0102, -0.033, 0.0145],
+    "th": [-0.0102, -0.0456, -0.0145],
 }
 PAD_CONTYPE = 2          # pads collide with objects that have this bit, not with the hand (bit 1)
 OBJECT_CONTYPE = 1 | 2   # objects collide with both hand and pads
@@ -27,7 +28,7 @@ OBJECT_CONTYPE = 1 | 2   # objects collide with both hand and pads
 
 def _pad_xml(young, poisson, damping, mass, resolution, pin_below):
     P, T = ellipsoid_tets(PAD_RADII, resolution)
-    pin = np.where(P[:, 2] / PAD_RADII[2] <= pin_below)[0]     # pin the back (inner) half to the bone
+    pin = np.where(-P[:, 0] / PAD_RADII[0] <= pin_below)[0]    # pin the back (bone-side, +x) half
     return f"""<mujoco><worldbody><body name="pad">
   <flexcomp name="flex" type="direct" dim="3" radius="0.0005" rgba=".78 .78 .78 1" mass="{mass}"
     point="{' '.join(f'{v:.6f}' for v in P.ravel())}" element="{' '.join(map(str, T.ravel()))}">

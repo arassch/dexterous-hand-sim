@@ -7,7 +7,7 @@ from pathlib import Path
 
 import mujoco
 
-from .pinch import PINCH_POINT
+from .pinch import PINCH_POINT, PINCH_RADIUS
 from .soft_pads import OBJECT_CONTYPE, add_soft_pads
 
 REPO = Path(__file__).resolve().parents[1]
@@ -33,7 +33,7 @@ def build_scene(ball_radius: float = 0.045, ball_pos=(0.05, 0.0, 0.2), soft_pads
         add_soft_pads(spec)
 
     if pinch:   # small sphere floating between thumb and index; gravity is switched on at release
-        ball_radius, ball_pos, mass = 0.016, PINCH_POINT, 0.02
+        ball_radius, ball_pos, mass = PINCH_RADIUS, PINCH_POINT, 0.02
     else:       # dropped onto the upturned palm, then the hand closes on it
         mass = 0.05
     ball = spec.worldbody.add_body(name="ball", pos=list(ball_pos))

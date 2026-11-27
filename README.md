@@ -33,7 +33,7 @@ python scripts/pinch_demo.py --headless
 Pinch, headless — soft pads give contact *patches*, rigid tips give single points:
 
 ```
-soft:   if_flex 1.28 N over 32 contact points | th_flex 1.41 N over 44 contact points
+soft:   if_flex 1.33 N over 20 contact points | th_flex 1.31 N over 20 contact points
 rigid:  if_ds   0.51 N over  1 contact point  | th_ds   0.47 N over  1 contact point
 ```
 
