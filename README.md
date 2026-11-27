@@ -15,7 +15,10 @@ Built on [MuJoCo](https://github.com/google-deepmind/mujoco): Python for scene s
 
 ## Quick start
 
+Requires Python 3.10+ (macOS's built-in `python3` is 3.9, which has no MuJoCo wheels and fails trying to build from source).
+
 ```bash
+pyenv install -s 3.12 && pyenv local 3.12   # or use Homebrew's python3.12
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ./scripts/fetch_models.sh          # sparse-clones the LEAP hand from MuJoCo Menagerie
