@@ -7,6 +7,7 @@ Clips:
   power_grasp      rigid-tip power grasp of a ball, contact points and forces
   pinch_<object>   soft-pad pinch of sphere/cube/cylinder/plate with pad pressure and tactile images
   rigid_vs_soft    sphere pinch, rigid tips (left) vs soft FEM pads (right)
+  pinch_grid       the sphere/cube/cylinder/plate pinch clips in a 2x2 grid
   bar_rigid_vs_soft  bar held off-centre: rigid tips drop it, soft pads hold it
 
 Rendering is offline, so the soft-pad clips play at real speed even though the
@@ -204,7 +205,21 @@ def clip_bar_rigid_vs_soft(duration=8.0):
     return frames
 
 
-CLIPS = {"power_grasp": clip_power_grasp, "rigid_vs_soft": clip_rigid_vs_soft,
+def clip_pinch_grid(kinds=("sphere", "cube", "cylinder", "plate")):
+    """2x2 grid of the soft-pad pinch clips, one shape per quadrant."""
+    clips = [clip_pinch(k) for k in kinds]
+    n = min(len(c) for c in clips)
+    frames = []
+    for i in range(n):
+        q = [np.array(Image.fromarray(c[i]).resize((W // 2, H // 2), Image.LANCZOS)) for c in clips]
+        img = np.concatenate([np.concatenate(q[:2], 1), np.concatenate(q[2:], 1)], 0)
+        img[H // 2 - 1:H // 2 + 1] = 255
+        img[:, W // 2 - 1:W // 2 + 1] = 255
+        frames.append(img)
+    return frames
+
+
+CLIPS = {"power_grasp": clip_power_grasp, "rigid_vs_soft": clip_rigid_vs_soft, "pinch_grid": clip_pinch_grid,
          "bar_rigid_vs_soft": clip_bar_rigid_vs_soft,
          **{f"pinch_{k}": (lambda k=k: clip_pinch(k)) for k in OBJECTS}}
 
