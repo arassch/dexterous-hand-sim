@@ -14,7 +14,7 @@ Built on [MuJoCo](https://github.com/google-deepmind/mujoco): Python for scene s
 - [x] Pinch objects: sphere, cube, tilted cylinder, 2 mm plate edge-on (`--object`), plus `scripts/tactile_gallery.py` to render all four with their tactile images
 - [ ] Custom C++ FEM fingertip plugin (`plugin/`)
 - [x] Rigid-fails/soft-holds demo: a bar pinched 3 cm off-centre (`--object bar`). Rigid point contacts can't resist the gravity torque about the pinch axis, so the bar swings and drops; the soft pads' contact patches hold it at ~8 deg
-- [x] Demo videos: `scripts/make_videos.py` (power grasp, pinch of each object with tactile images, 2x2 grid of the four shapes, rigid vs soft, off-centre bar)
+- [x] Demo videos: `scripts/make_videos.py`, joined with `scripts/concat_videos.py` (power grasp, pinch of each object with tactile images, 2x2 grid of the four shapes, rigid vs soft, off-centre bar)
 - [ ] Write-up
 
 ## Quick start
