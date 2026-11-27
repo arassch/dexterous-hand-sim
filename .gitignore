@@ -6,3 +6,4 @@ build/
 out/
 *.mp4
 .DS_Store
+MUJOCO_LOG.TXT
