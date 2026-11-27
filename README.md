@@ -8,7 +8,8 @@ Built on [MuJoCo](https://github.com/google-deepmind/mujoco): Python for scene s
 
 - [x] LEAP hand from MuJoCo Menagerie, scripted grasp of a ball
 - [x] Contact points / force arrows in the viewer, per-finger normal forces headless
-- [ ] Soft fingertips with MuJoCo flex (built-in elasticity)
+- [x] Soft FEM fingertip pads with MuJoCo flex (pinned core, elastic outer layer)
+- [x] Thumb–index pinch held by the pads alone (`scripts/pinch_demo.py`, `--rigid` to compare)
 - [ ] Fingertip pressure maps
 - [ ] Custom C++ FEM fingertip plugin (`plugin/`)
 - [ ] Video + write-up
@@ -23,18 +24,21 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ./scripts/fetch_models.sh          # sparse-clones the LEAP hand from MuJoCo Menagerie
 
-mjpython scripts/grasp_demo.py     # interactive viewer (macOS needs mjpython)
-python scripts/grasp_demo.py --headless
+mjpython scripts/grasp_demo.py     # power grasp, rigid tips (macOS needs mjpython)
+mjpython scripts/pinch_demo.py     # pinch with soft FEM pads (runs ~0.2x real time)
+mjpython scripts/pinch_demo.py --rigid
+python scripts/pinch_demo.py --headless
 ```
 
-Headless output looks like:
+Pinch, headless — soft pads give contact *patches*, rigid tips give single points:
 
 ```
-t=8.00s  ball at [-0.054  0.019  0.179]  contacts=3
-  mf_ds      1.81 N
-  palm       8.68 N
-  th_ds     10.35 N
+soft:   if_flex 0.81 N over 16 contact points | th_flex 0.80 N over 12 contact points
+rigid:  if_ds   0.51 N over  1 contact point  | th_ds   0.47 N over  1 contact point
 ```
+
+Pad stiffness, size and mesh resolution are parameters of `add_soft_pads()` in `hand_sim/soft_pads.py`
+(resolution 5 ≈ 0.2x real time on CPU; resolution 4 is about twice as fast).
 
 ## Layout
 
