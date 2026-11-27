@@ -10,7 +10,7 @@ Built on [MuJoCo](https://github.com/google-deepmind/mujoco): Python for scene s
 - [x] Contact points / force arrows in the viewer, per-finger normal forces headless
 - [x] Soft FEM fingertip pads with MuJoCo flex covering the whole palmar face of each tip and curling over the end (back half pinned, front half elastic)
 - [x] Thumb–index pinch held by the pads alone (`scripts/pinch_demo.py`, `--rigid` to compare): pads directly opposed, each fingertip closes straight along its pad normal (Jacobian-planned)
-- [ ] Fingertip pressure maps
+- [x] Fingertip pressure maps: per-node pressure on each pad's outer face (5x5 taxels), heat dots on the pads and live tactile images in the viewer
 - [ ] Custom C++ FEM fingertip plugin (`plugin/`)
 - [ ] Video + write-up
 
@@ -27,7 +27,7 @@ pip install -r requirements.txt
 mjpython scripts/grasp_demo.py     # power grasp, rigid tips (macOS needs mjpython)
 mjpython scripts/pinch_demo.py     # pinch with soft FEM pads (runs ~0.4x real time)
 mjpython scripts/pinch_demo.py --rigid
-python scripts/pinch_demo.py --headless
+python scripts/pinch_demo.py --headless --save-tactile tactile.png
 ```
 
 Pinch, headless — soft pads give contact *patches*, rigid tips give single points:
